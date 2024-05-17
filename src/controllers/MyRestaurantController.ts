@@ -24,7 +24,7 @@ const createMyRestaurant = async (req: Request, res: Response) => {
     if (existingRestaurant) {
       return res
         .status(409)
-        .json({ message: "User restaurant already exists" });
+        .json({ message: "A restaurant already exists on this account" });
     }
 
     const imageUrl = await uploadImage(req.file as Express.Multer.File);

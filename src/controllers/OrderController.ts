@@ -36,34 +36,36 @@ type CheckoutSessionRequest = {
 };
 
 const stripeWebhookHandler = async (req: Request, res: Response) => {
-  let event;
+  console.log("Success");
 
-  try {
-    const sig = req.headers["stripe-signature"];
-    event = STRIPE.webhooks.constructEvent(
-      req.body,
-      sig as string,
-      STRIPE_ENDPOINT_SECRET
-    );
-  } catch (error: any) {
-    console.log(error);
-    return res.status(400).send(`Webhook error: ${error.message}`);
-  }
+  // let event;
 
-  if (event.type === "checkout.session.completed") {
-    const order = await Order.findById(event.data.object.metadata?.orderId);
+  // try {
+  //   const sig = req.headers["stripe-signature"];
+  //   event = STRIPE.webhooks.constructEvent(
+  //     req.body,
+  //     sig as string,
+  //     STRIPE_ENDPOINT_SECRET
+  //   );
+  // } catch (error: any) {
+  //   console.log(error);
+  //   return res.status(400).send(`Webhook error: ${error.message}`);
+  // }
 
-    if (!order) {
-      return res.status(404).json({ message: "Order not found" });
-    }
+  // if (event.type === "checkout.session.completed") {
+  //   const order = await Order.findById(event.data.object.metadata?.orderId);
 
-    order.totalAmount = event.data.object.amount_total;
-    order.status = "paid";
+  //   if (!order) {
+  //     return res.status(404).json({ message: "Order not found" });
+  //   }
 
-    await order.save();
-  }
+  //   order.totalAmount = event.data.object.amount_total;
+  //   order.status = "paid";
 
-  res.status(200).send();
+  //   await order.save();
+  // }
+
+  // res.status(200).send();
 };
 
 const createCheckoutSession = async (req: Request, res: Response) => {
@@ -126,7 +128,7 @@ const createLineItems = (
 
     const line_item: Stripe.Checkout.SessionCreateParams.LineItem = {
       price_data: {
-        currency: "gbp",
+        currency: "inr",
         unit_amount: menuItem.price,
         product_data: {
           name: menuItem.name,
@@ -149,6 +151,8 @@ const createSession = async (
 ) => {
   const sessionData = await STRIPE.checkout.sessions.create({
     line_items: lineItems,
+    customer_email: "rddjk@gmail.com",
+    billing_address_collection: "required",
     shipping_options: [
       {
         shipping_rate_data: {
@@ -156,7 +160,7 @@ const createSession = async (
           type: "fixed_amount",
           fixed_amount: {
             amount: deliveryPrice,
-            currency: "gbp",
+            currency: "inr",
           },
         },
       },
@@ -166,6 +170,7 @@ const createSession = async (
       orderId,
       restaurantId,
     },
+    currency: "inr",
     success_url: `${FRONTEND_URL}/order-status?success=true`,
     cancel_url: `${FRONTEND_URL}/detail/${restaurantId}?cancelled=true`,
   });
