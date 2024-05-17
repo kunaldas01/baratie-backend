@@ -149,8 +149,6 @@ const createSession = async (
 ) => {
   const sessionData = await STRIPE.checkout.sessions.create({
     line_items: lineItems,
-    customer_email: "rddjk@gmail.com",
-    billing_address_collection: "required",
     shipping_options: [
       {
         shipping_rate_data: {
@@ -168,7 +166,6 @@ const createSession = async (
       orderId,
       restaurantId,
     },
-    currency: "inr",
     success_url: `${FRONTEND_URL}/order-status?success=true`,
     cancel_url: `${FRONTEND_URL}/detail/${restaurantId}?cancelled=true`,
   });
